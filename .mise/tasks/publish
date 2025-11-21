@@ -3,6 +3,13 @@
 #MISE depends=["setup", "build"]
 #USAGE flag "-t --tag <tag>" "Tag to publish with" default="latest"
 
-bun publish \
+# Try npm first (better OIDC support in CI), fallback to bun
+if command -v npm &> /dev/null; then
+  npm publish \
     --access public \
     --tag "${usage_tag}"
+else
+  bun publish \
+    --access public \
+    --tag "${usage_tag}"
+fi
