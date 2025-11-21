@@ -22,8 +22,16 @@ jobs:
           cache: true
           experimental: true
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Build
         run: mise run build
+
+      - name: Pack and verify
+        run: npm pack --dry-run
 
       - name: Publish with OIDC
         run: mise run publish --tag next
