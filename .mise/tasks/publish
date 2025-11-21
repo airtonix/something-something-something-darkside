@@ -5,22 +5,36 @@
 
 set -e
 
+# Create a temporary directory for the tarball
+TEMP_DIR=$(mktemp -d)
+trap "rm -rf $TEMP_DIR" EXIT
+
+cd "$TEMP_DIR"
+
 # Pack with bun (leverages all bun build aspects)
 echo "Packing with bun..."
-TARBALL=$(bun publish --dry-run --quiet 2>&1 | tail -1)
+bun publish --dry-run --quiet
+
+# Find the created tarball
+TARBALL=$(ls -1 *.tgz 2>/dev/null | head -1)
 
 if [ -z "$TARBALL" ]; then
-  echo "Error: Failed to determine tarball name"
+  echo "Error: Failed to create tarball"
   exit 1
 fi
 
 echo "Packed tarball: $TARBALL"
 
+# Go back to original directory
+cd -
+
+# Copy tarball to current directory
+cp "$TEMP_DIR/$TARBALL" .
+
 # Publish with npm (better OIDC support in CI)
 echo "Publishing to npm with tag: ${usage_tag}..."
-npm publish \
+npm publish "$TARBALL" \
   --access public \
-  --tag "${usage_tag}" \
-  "$TARBALL"
+  --tag "${usage_tag}"
 
 echo "Published successfully!"
