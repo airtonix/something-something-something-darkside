@@ -1,6 +1,6 @@
 {
   "name": "something-something-something-darkside",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "description": "An oicd package for testing npm publish from bun with github actions",
   "type": "module",
   "module": "src/index.ts",
