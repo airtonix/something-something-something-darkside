@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Publish to npm registry"
+#MISE depends=["setup", "build"]
+#USAGE flag "-t --tag <tag>" "Tag to publish with" default="latest"
+
+bun publish \
+    --access public \
+    --tag "${usage_tag}"
