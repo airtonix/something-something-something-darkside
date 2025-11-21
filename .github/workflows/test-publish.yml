@@ -28,4 +28,4 @@ jobs:
         run: mise run build
 
       - name: Publish with OIDC
-        run: mise run publish --tag ${{ inputs.tag }}
+        run: bun publish --access public --tag ${{ inputs.tag }}
