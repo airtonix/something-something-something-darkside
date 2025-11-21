@@ -3,13 +3,14 @@
 #MISE depends=["setup", "build"]
 #USAGE flag "-t --tag <tag>" "Tag to publish with" default="latest"
 
-# Try npm first (better OIDC support in CI), fallback to bun
-if command -v npm &> /dev/null; then
-  npm publish \
-    --access public \
-    --tag "${usage_tag}"
-else
-  bun publish \
-    --access public \
-    --tag "${usage_tag}"
-fi
+set -e
+
+# Pack with bun (leverages all bun build aspects)
+TARBALL=$(bun publish --dry-run --quiet 2>&1 | tail -1)
+echo "Packed tarball: $TARBALL"
+
+# Publish with npm (better OIDC support in CI)
+npm publish \
+  --access public \
+  --tag "${usage_tag}" \
+  "$TARBALL"
