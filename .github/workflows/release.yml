@@ -27,8 +27,5 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Build
-        run: mise run build
-
-      - name: Publish with OIDC
+      - name: Build and Publish with OIDC
         run: mise run publish --tag next

@@ -6,11 +6,21 @@
 set -e
 
 # Pack with bun (leverages all bun build aspects)
+echo "Packing with bun..."
 TARBALL=$(bun publish --dry-run --quiet 2>&1 | tail -1)
+
+if [ -z "$TARBALL" ]; then
+  echo "Error: Failed to determine tarball name"
+  exit 1
+fi
+
 echo "Packed tarball: $TARBALL"
 
 # Publish with npm (better OIDC support in CI)
+echo "Publishing to npm with tag: ${usage_tag}..."
 npm publish \
   --access public \
   --tag "${usage_tag}" \
   "$TARBALL"
+
+echo "Published successfully!"
