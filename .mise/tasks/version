@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#MISE description="Bump version with semver"
+#USAGE flag "-t --tag <tag>" "Tag for versioning strategy" default="latest"
+
+set -e
+
+echo "Bumping version"
+echo " > with tag: ${usage_tag}..."
+
+# Bump prerelease version if tag is "next"
+if [ "${usage_tag}" = "next" ]; then
+  echo "Bumping prerelease version..."
+  bun pm version prerelease
+elif [ "${usage_tag}" = "latest" ]; then
+  echo "Bumping patch version..."
+  bun pm version patch
+fi
+
+echo "Version bump completed!"

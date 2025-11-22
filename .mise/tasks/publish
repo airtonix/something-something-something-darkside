@@ -9,18 +9,6 @@ echo "Publishing to npm"
 echo " > with tag: ${usage_tag}..."
 echo " > npm version: $(npm --version)"
 
-# Bump prerelease version if tag is "next"
-if [ "${usage_tag}" = "next" ]; then
-  echo "Bumping prerelease version..."
-  bun pm version prerelease
-  
-  # Commit and push the version bump
-  echo "Committing and pushing version bump..."
-  git add package.json
-  git commit -m "chore: bump prerelease version"
-  git push origin HEAD
-fi
-
 # Publish directly from source (allows provenance generation)
 # In GitHub Actions with OIDC, provenance is automatically generated
 npm publish \

@@ -8,13 +8,15 @@ on:
 
 permissions:
   id-token: write # needed for npm oidc login
-  contents: read
+  contents: write # needed to push version bumps
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: jdx/mise-action@d6e32c1796099e0f1f3ac741c220a8b7eae9e5dd
         with:
@@ -22,5 +24,19 @@ jobs:
           cache: true
           experimental: true
 
-      - name: Build and Publish with OIDC
+      - name: Configure git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Bump version
+        run: mise run version --tag next
+
+      - name: Commit and push version bump
+        run: |
+          git add package.json
+          git commit -m "chore: bump prerelease version" || echo "No changes to commit"
+          git push origin HEAD
+
+      - name: Publish to npm with OIDC
         run: mise run publish --tag next
