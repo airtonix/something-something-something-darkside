@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Bump version with semver"
-#USAGE flag "-t --tag <tag>" "Tag for versioning strategy" default="latest"
+#USAGE flag "-t --tag <tag>" "Tag for versioning strategy" default="next"
 
 set -e
 
@@ -12,8 +12,20 @@ if [ "${usage_tag}" = "next" ]; then
   echo "Bumping prerelease version..."
   bun pm version prerelease
 elif [ "${usage_tag}" = "latest" ]; then
-  echo "Bumping patch version..."
+  echo "Bumping patch version (latest)..."
   bun pm version patch
+  
+  # Also update "next" to match latest when we release stable
+  echo "Syncing 'next' tag to match 'latest'..."
+  # Get the new version
+  NEW_VERSION=$(jq -r '.version' package.json)
+  
+  # Reset next to be a new prerelease based on latest
+  # E.g., if latest is 1.0.0, next becomes 1.0.1-prerelease.0
+  bun pm version prerelease
+  
+  echo " > Latest: $NEW_VERSION"
+  echo " > Next bumped to: $(jq -r '.version' package.json)"
 fi
 
 echo "Version bump completed!"
