@@ -32,8 +32,13 @@ jobs:
       - name: Build
         run: mise run build
 
+      - uses: simenandre/setup-inputs@v1
+        with:
+          workflow_dispatch_input: tag
+          repository_dispatch_key: tag
+          fallback: latest
+
       - name: Publish to npm with OIDC
         run: |
-          TAG=${{ inputs.tag || github.event.client_payload.tag }}
-          echo "Publishing with tag: $TAG"
-          mise run publish --tag "$TAG"
+          echo "Publishing with tag: ${{ env.TAG }}"
+          mise run publish --tag "${{ env.TAG }}"
