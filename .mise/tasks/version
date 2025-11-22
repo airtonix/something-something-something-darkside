@@ -1,31 +1,26 @@
 #!/usr/bin/env bash
-#MISE description="Bump version with semver"
-#USAGE flag "-t --tag <tag>" "Tag for versioning strategy" default="next"
+#MISE description="Bump prerelease version for 'next' tag"
+#USAGE flag "-t --tag <tag>" "Tag for versioning strategy (next|latest)" default="next"
 
 set -e
 
 echo "Bumping version"
 echo " > with tag: ${usage_tag}..."
 
-# Bump prerelease version if tag is "next"
+# Only bump prerelease for "next" development cycle
+# "latest" versions are managed by release-please
 if [ "${usage_tag}" = "next" ]; then
-  echo "Bumping prerelease version..."
+  echo "Bumping prerelease version for 'next' tag..."
   bun pm version prerelease
+  echo " > Next version: $(jq -r '.version' package.json)"
 elif [ "${usage_tag}" = "latest" ]; then
-  echo "Bumping patch version (latest)..."
-  bun pm version patch
-  
-  # Also update "next" to match latest when we release stable
-  echo "Syncing 'next' tag to match 'latest'..."
-  # Get the new version
-  NEW_VERSION=$(jq -r '.version' package.json)
-  
-  # Reset next to be a new prerelease based on latest
-  # E.g., if latest is 1.0.0, next becomes 1.0.1-prerelease.0
-  bun pm version prerelease
-  
-  echo " > Latest: $NEW_VERSION"
-  echo " > Next bumped to: $(jq -r '.version' package.json)"
+  echo "ℹ️  'latest' version bumps are managed by release-please"
+  echo "    This task only handles 'next' prerelease bumps"
+  echo "    Current version: $(jq -r '.version' package.json)"
+else
+  echo "❌ Unknown tag: ${usage_tag}"
+  echo "   Use: --tag next (default) or --tag latest"
+  exit 1
 fi
 
 echo "Version bump completed!"
