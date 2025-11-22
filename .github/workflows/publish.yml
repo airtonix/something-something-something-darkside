@@ -32,13 +32,12 @@ jobs:
       - name: Build
         run: mise run build
 
-      - name: Parse inputs and publish
+      - id: inputs
+        uses: simenandre/setup-inputs@v1
+
+      - name: Publish to npm with OIDC
         run: |
-          # Parse tag from either workflow_dispatch or repository_dispatch
-          TAG="${{ inputs.tag }}"
-          if [ -z "$TAG" ]; then
-            TAG="${{ github.event.client_payload.tag }}"
-          fi
+          TAG="${{ steps.inputs.outputs.tag }}"
           if [ -z "$TAG" ]; then
             TAG="latest"
           fi
