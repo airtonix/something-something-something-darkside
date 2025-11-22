@@ -13,6 +13,12 @@ echo " > npm version: $(npm --version)"
 if [ "${usage_tag}" = "next" ]; then
   echo "Bumping prerelease version..."
   bun pm version prerelease
+  
+  # Commit and push the version bump
+  echo "Committing and pushing version bump..."
+  git add package.json
+  git commit -m "chore: bump prerelease version"
+  git push origin HEAD
 fi
 
 # Publish directly from source (allows provenance generation)
