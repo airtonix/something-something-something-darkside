@@ -17,7 +17,12 @@ fi
 echo "Packed tarball: $TARBALL"
 
 # Publish with npm (better OIDC support in CI)
-echo "Publishing to npm with tag: ${usage_tag}..."
+echo "Publishing to npm"
+
+echo " > with tag: ${usage_tag}..."
+echo " > from tarball: ${TARBALL}..."
+echo " > npm version: $(npm --version)"
+
 npm publish "$TARBALL" \
   --access public \
   --tag "${usage_tag}"
