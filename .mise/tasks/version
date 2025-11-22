@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="Bump prerelease version for 'next' tag"
+#MISE description="Bump version - handles 'next' prerelease or syncs after 'latest'"
 #USAGE flag "-t --tag <tag>" "Tag for versioning strategy (next|latest)" default="next"
 
 set -e
@@ -7,16 +7,28 @@ set -e
 echo "Bumping version"
 echo " > with tag: ${usage_tag}..."
 
-# Only bump prerelease for "next" development cycle
-# "latest" versions are managed by release-please
+# When bumping "next": prerelease bump only
+# When "latest": release-please handles it, but we sync "next" to be ahead
 if [ "${usage_tag}" = "next" ]; then
   echo "Bumping prerelease version for 'next' tag..."
   bun pm version prerelease
   echo " > Next version: $(jq -r '.version' package.json)"
+  
 elif [ "${usage_tag}" = "latest" ]; then
-  echo "ℹ️  'latest' version bumps are managed by release-please"
-  echo "    This task only handles 'next' prerelease bumps"
-  echo "    Current version: $(jq -r '.version' package.json)"
+  echo "Syncing 'next' tag to be ahead of 'latest'..."
+  echo "(Note: 'latest' version should already be bumped by release-please)"
+  
+  # Get current version (should be latest after release-please)
+  LATEST_VERSION=$(jq -r '.version' package.json)
+  echo " > Latest version: $LATEST_VERSION"
+  
+  # Bump to next prerelease (X.Y.Z -> X.Y.(Z+1)-prerelease.0)
+  echo " > Bumping 'next' to be ahead of latest..."
+  bun pm version prerelease
+  
+  NEXT_VERSION=$(jq -r '.version' package.json)
+  echo " > Next version: $NEXT_VERSION"
+  
 else
   echo "❌ Unknown tag: ${usage_tag}"
   echo "   Use: --tag next (default) or --tag latest"
