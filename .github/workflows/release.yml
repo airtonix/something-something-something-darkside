@@ -24,6 +24,8 @@ jobs:
         id: release-please
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          skip-github-pull-request: false
 
   dispatch-publish:
     needs: process
