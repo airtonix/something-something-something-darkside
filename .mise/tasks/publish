@@ -7,7 +7,7 @@ set -e
 
 # Pack with bun pm pack (leverages all bun build aspects)
 echo "Packing with bun pm pack..."
-TARBALL=$(bun pm pack --quiet)
+TARBALL=$(bun pm pack --quiet | tr -d '\n')
 
 if [ -z "$TARBALL" ]; then
   echo "Error: Failed to create tarball"
@@ -25,6 +25,7 @@ echo " > npm version: $(npm --version)"
 
 npm publish "$TARBALL" \
   --access public \
-  --tag "${usage_tag}"
+  --tag "${usage_tag}" \
+  --no-provenance
 
 echo "Published successfully!"
