@@ -25,7 +25,6 @@ echo " > npm version: $(npm --version)"
 
 npm publish "$TARBALL" \
   --access public \
-  --tag "${usage_tag}" \
-  --no-provenance
+  --tag "${usage_tag}"
 
 echo "Published successfully!"
