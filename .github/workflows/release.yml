@@ -6,37 +6,42 @@ on:
       - main
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 permissions:
-  id-token: write # needed for npm oidc login
-  contents: write # needed to push version bumps
+  contents: write
+  pull-requests: write
 
 jobs:
-  publish:
+  process:
     runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release-please.outputs.releases_created }}
+      prs_created: ${{ steps.release-please.outputs.prs_created }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: google-github-actions/release-please-action@v4
+        id: release-please
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: jdx/mise-action@d6e32c1796099e0f1f3ac741c220a8b7eae9e5dd
+  dispatch-publish:
+    needs: process
+    runs-on: ubuntu-latest
+    if: needs.process.outputs.releases_created == 'true' || needs.process.outputs.prs_created == 'true'
+    steps:
+      - name: Dispatch publish for releases
+        if: needs.process.outputs.releases_created == 'true'
+        uses: peter-evans/repository-dispatch@v2
         with:
-          install: true
-          cache: true
-          experimental: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-package
+          client-payload: '{"tag": "latest"}'
 
-      - name: Configure git
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-      - name: Bump version
-        run: mise run version --tag next
-
-      - name: Commit and push version bump
-        run: |
-          git add package.json
-          git commit -m "chore: bump prerelease version" || echo "No changes to commit"
-          git push origin HEAD
-
-      - name: Publish to npm with OIDC
-        run: mise run publish --tag next
+      - name: Dispatch publish for prerelease
+        if: needs.process.outputs.prs_created == 'true'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-package
+          client-payload: '{"tag": "next"}'
