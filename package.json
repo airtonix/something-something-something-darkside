@@ -4,6 +4,10 @@
   "description": "An oicd package for testing npm publish from bun with github actions",
   "type": "module",
   "module": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/airtonix/something-something-something-darkside"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
