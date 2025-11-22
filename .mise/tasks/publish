@@ -9,10 +9,22 @@ echo "Publishing to npm"
 echo " > with tag: ${usage_tag}..."
 echo " > npm version: $(npm --version)"
 
-# Publish directly from source (allows provenance generation)
-# In GitHub Actions with OIDC, provenance is automatically generated
+# Determine if we should use provenance
+# Only enable in CI environments with OIDC support
+PROVENANCE_FLAG=""
+if [ -z "$GITHUB_ACTIONS" ]; then
+  # Local development: disable provenance (fails without CI provider context)
+  PROVENANCE_FLAG="--no-provenance"
+  echo " > provenance: disabled (local environment)"
+else
+  # GitHub Actions: enable provenance (OIDC will handle it automatically)
+  echo " > provenance: enabled (GitHub Actions with OIDC)"
+fi
+
+# Publish directly from source (allows provenance generation in CI)
 npm publish \
   --access public \
-  --tag "${usage_tag}"
+  --tag "${usage_tag}" \
+  $PROVENANCE_FLAG
 
 echo "Published successfully!"
