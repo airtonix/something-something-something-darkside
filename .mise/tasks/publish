@@ -5,25 +5,19 @@
 
 set -e
 
-# Pack with bun pm pack (leverages all bun build aspects)
-echo "Packing with bun pm pack..."
-TARBALL=$(bun pm pack --quiet | tr -d '\n')
-
-if [ -z "$TARBALL" ]; then
-  echo "Error: Failed to create tarball"
-  exit 1
-fi
-
-echo "Packed tarball: $TARBALL"
-
-# Publish with npm (better OIDC support in CI)
 echo "Publishing to npm"
-
 echo " > with tag: ${usage_tag}..."
-echo " > from tarball: ${TARBALL}..."
 echo " > npm version: $(npm --version)"
 
-npm publish "$TARBALL" \
+# Bump prerelease version if tag is "next"
+if [ "${usage_tag}" = "next" ]; then
+  echo "Bumping prerelease version..."
+  bun pm version prerelease
+fi
+
+# Publish directly from source (allows provenance generation)
+# In GitHub Actions with OIDC, provenance is automatically generated
+npm publish \
   --access public \
   --tag "${usage_tag}"
 
